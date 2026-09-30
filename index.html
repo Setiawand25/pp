@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduHotel Tech Quest: Misi Mahasiswa D4</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-hover-effect {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-hover-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .btn-hover-effect:active {
+            transform: translateY(1px);
+        }
+
+        /* Certificate Styles */
+        .certificate-container {
+            background-color: #fff;
+            color: #1a202c;
+            border: 15px solid #d4af37; /* Gold border */
+            outline: 2px solid #fff;
+            outline-offset: -10px;
+            position: relative;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h100v100H0z" fill="%23fdfbf7"/><path d="M10 10h80v80H10z" fill="none" stroke="%23e2e8f0" stroke-width="1"/></svg>');
+        }
+        .certificate-title {
+            font-family: 'Playfair Display', serif;
+            color: #b45309; /* Dark gold/bronze */
+        }
+        .certificate-seal {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #fbbf24 0%, #d97706 100%);
+            border-radius: 50%;
+            border: 2px dashed #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.7rem;
+            text-align: center;
+            transform: rotate(-15deg);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
+        .progress-fill {
+            transition: width 0.3s ease-in-out;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+    <div id="app" class="w-full max-w-4xl mx-auto">
+        
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="glass-panel rounded-3xl p-8 md:p-12 text-center animate-fade-in">
+            <div class="mb-6 flex justify-center">
+                <span class="text-6xl">🏨💻</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 mb-4 tracking-tight">
+                EduHotel Tech Quest
+            </h1>
+            <p class="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                Selamat datang, Mahasiswa D4 Pengelolaan Perhotelan! Uji kemampuan Aplikasi Komputer, TIK, dan AI kamu dalam simulasi manajemen hotel interaktif.
+            </p>
+            
+            <div class="max-w-md mx-auto">
+                <label for="playerName" class="block text-sm font-medium text-gray-400 mb-2 text-left">Masukkan Nama Lengkap Anda:</label>
+                <input type="text" id="playerName" placeholder="Cth: Budi Santoso" class="w-full px-5 py-4 rounded-xl bg-slate-800 border border-slate-600 focus:border-teal-400 focus:ring-2 focus:ring-teal-400 text-white outline-none transition-all mb-6 text-lg placeholder-slate-500">
+                
+                <button id="startBtn" class="w-full bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold py-4 px-8 rounded-xl btn-hover-effect text-xl shadow-lg shadow-teal-500/30">
+                    Mulai Shift Kerja! 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden animate-fade-in w-full">
+            
+            <!-- Header Status Bar -->
+            <div class="glass-panel rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-600/30 p-2 rounded-lg border border-indigo-400/30">
+                        <span class="text-indigo-300 font-bold text-sm">SOAL</span>
+                        <div class="text-2xl font-black text-white leading-none" id="questionCounter">1/30</div>
+                    </div>
+                    <div id="categoryBadge" class="px-3 py-1 bg-teal-500/20 text-teal-300 border border-teal-500/30 rounded-full text-sm font-semibold tracking-wide uppercase">
+                        Kategori
+                    </div>
+                </div>
+                
+                <div class="flex-1 max-w-md w-full px-4">
+                    <div class="w-full bg-slate-700 h-3 rounded-full overflow-hidden">
+                        <div id="progressBar" class="bg-gradient-to-r from-teal-400 to-blue-500 h-full progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-500/20 p-2 rounded-lg border border-amber-400/30 text-center min-w-[80px]">
+                    <span class="text-amber-300 font-bold text-xs block">SKOR</span>
+                    <div class="text-2xl font-black text-white leading-none" id="scoreDisplay">0</div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="glass-panel rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
+                <!-- Decorative element -->
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
+                
+                <h2 id="questionText" class="text-2xl md:text-3xl font-semibold mb-8 leading-snug relative z-10">
+                    Teks Pertanyaan akan muncul di sini?
+                </h2>
+                
+                <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
+                    <!-- Options generated via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden animate-fade-in w-full pb-10">
+            
+            <div class="text-center mb-8">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500 mb-2">Shift Selesai!</h2>
+                <p class="text-xl text-gray-300" id="resultGreeting">Kerja bagus, [Nama]</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Stats & Prediction -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="glass-panel rounded-2xl p-6 text-center shadow-[0_0_30px_rgba(251,191,36,0.1)] border-t-4 border-t-amber-400">
+                        <h3 class="text-gray-400 text-sm uppercase tracking-wider font-bold mb-1">Skor Akhir</h3>
+                        <div class="text-6xl font-black text-white mb-2">
+                            <span id="finalScoreDisplay">0</span><span class="text-3xl text-gray-500">/30</span>
+                        </div>
+                        <div class="w-full bg-slate-700 h-2 rounded-full mt-4">
+                            <div id="finalProgressBar" class="bg-amber-400 h-full rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-6 text-center border border-teal-500/30 bg-teal-900/10">
+                        <h3 class="text-teal-300 text-sm uppercase tracking-wider font-bold mb-3">Ramalan Karir Masa Depan 🔮</h3>
+                        <div class="text-5xl mb-3" id="predictionIcon">👑</div>
+                        <h4 id="jobPredictionTitle" class="text-xl font-bold text-white mb-2 text-balance">General Manager AI</h4>
+                        <p id="jobPredictionDesc" class="text-sm text-gray-400">Deskripsi karir akan muncul di sini berdasarkan skormu.</p>
+                    </div>
+                    
+                    <button onclick="location.reload()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-4 px-6 rounded-xl btn-hover-effect transition-colors flex items-center justify-center gap-2">
+                        <span>🔄</span> Coba Shift Lagi
+                    </button>
+                </div>
+
+                <!-- Certificate Visual -->
+                <div class="lg:col-span-2">
+                    <div class="certificate-container p-8 md:p-12 shadow-2xl mx-auto w-full max-w-[800px] text-center">
+                        <div class="border-2 border-slate-200 p-8 relative h-full">
+                            <!-- Background watermark hint -->
+                            <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                                <span class="text-9xl">🏨</span>
+                            </div>
+                            
+                            <h1 class="certificate-title text-4xl md:text-5xl mb-2 font-bold uppercase tracking-widest">Sertifikat Kelulusan</h1>
+                            <p class="text-slate-500 tracking-widest text-sm uppercase mb-8 font-semibold">EduHotel Tech Academy</p>
+                            
+                            <p class="italic text-slate-600 mb-4 text-lg">Dengan bangga diberikan kepada:</p>
+                            
+                            <h2 id="certName" class="text-3xl md:text-4xl font-bold text-slate-800 mb-6 border-b-2 border-slate-300 inline-block px-10 pb-2 capitalize">
+                                Nama Peserta
+                            </h2>
+                            
+                            <p class="text-slate-600 mb-2 max-w-lg mx-auto text-sm md:text-base">
+                                Telah berhasil menyelesaikan simulasi <b>Basic Computer Applications & Hotel ICT</b> dengan nilai sangat memuaskan, menunjukkan kompetensi dalam Microsoft Office, Cloud Storage, dan Pemanfaatan AI di industri perhotelan.
+                            </p>
+                            
+                            <div class="mt-8 flex justify-center items-center gap-4">
+                                <div class="text-center">
+                                    <span class="block text-2xl font-black text-amber-600" id="certScore">100</span>
+                                    <span class="text-xs font-bold text-slate-400 uppercase">Poin Keseluruhan</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-12 flex justify-between items-end border-t border-slate-200 pt-6 relative z-10">
+                                <div class="text-center w-1/3">
+                                    <div class="font-signature text-2xl mb-1 italic text-slate-800" style="font-family: 'Playfair Display', serif;">A.I. Sistem</div>
+                                    <div class="h-px bg-slate-400 w-full mb-1"></div>
+                                    <p class="text-[10px] text-slate-500 uppercase font-bold">Instruktur Digital</p>
+                                </div>
+                                <div class="text-center w-1/3">
+                                    <div class="text-sm mb-2 text-slate-800 font-medium" id="certDate">Tanggal</div>
+                                    <div class="h-px bg-slate-400 w-full mb-1"></div>
+                                    <p class="text-[10px] text-slate-500 uppercase font-bold">Tanggal Diterbitkan</p>
+                                </div>
+                            </div>
+                            
+                            <div class="certificate-seal">
+                                <div>OFFICIAL<br>SEAL</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-center text-slate-400 mt-4 text-sm">* Screenshot sertifikat ini sebagai bukti pelatihan simulasi Anda.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="fixed inset-0 modal-overlay z-50 hidden flex-col items-center justify-center p-4">
+        <div id="feedbackContent" class="bg-slate-800 rounded-3xl p-8 max-w-md w-full text-center border-2 border-slate-600 shadow-2xl transform scale-95 transition-transform duration-300">
+            <div id="feedbackIcon" class="text-7xl mb-4">✅</div>
+            <h3 id="feedbackTitle" class="text-3xl font-bold mb-2 text-white">Benar!</h3>
+            <div class="h-px bg-slate-700 w-full my-4"></div>
+            <p id="feedbackExplanation" class="text-slate-300 mb-8 text-lg leading-relaxed">Penjelasan akan muncul di sini.</p>
+            <button id="nextQuestionBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-xl btn-hover-effect text-lg shadow-lg shadow-blue-600/30">
+                Lanjut ke Soal Berikutnya ➡️
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // State
+        const state = {
+            playerName: '',
+            currentQuestion: 0,
+            score: 0,
+            questions: []
+        };
+
+        // Questions Database (Exactly 30 Questions)
+        const allQuestions = [
+            // --- WORD (5 Questions) ---
+            {
+                category: "MS. Word", icon: "📄",
+                question: "Sebagai admin HRD Hotel, Anda harus membuat 150 surat undangan interview dengan nama pelamar yang berbeda. Fitur Word apa yang paling tepat dan efisien digunakan?",
+                options: ["Copy-Paste manual 150 kali", "Mail Merge", "Track Changes", "Format Painter"],
+                correct: 1,
+                feedback: "Mail Merge memungkinkan Anda menghubungkan template dokumen Word dengan database (seperti Excel) untuk membuat banyak surat khusus secara otomatis."
+            },
+            {
+                category: "MS. Word", icon: "📄",
+                question: "General Manager meminta Anda membuat Standar Operasional Prosedur (SOP) Housekeeping. Agar format margin dan kop surat hotel tidak berubah saat dibuka di komputer lain, sebaiknya file disimpan dalam format?",
+                options: ["PDF (*.pdf)", "Word Document (*.docx)", "Plain Text (*.txt)", "Web Page (*.html)"],
+                correct: 0,
+                feedback: "Format PDF mengunci layout, font, dan gambar sehingga tampilan dokumen akan selalu sama persis di semua perangkat."
+            },
+            {
+                category: "MS. Word", icon: "📄",
+                question: "Anda sedang merevisi draf menu restoran bersama Executive Chef. Fitur apa yang digunakan agar Chef bisa melihat bagian teks mana saja yang baru saja Anda ubah atau hapus?",
+                options: ["Find and Replace", "Spelling & Grammar", "Track Changes", "Word Count"],
+                correct: 2,
+                feedback: "Track Changes merekam semua modifikasi (tambah, hapus, format) yang dilakukan pada dokumen, sangat berguna untuk kolaborasi."
+            },
+            {
+                category: "MS. Word", icon: "📄",
+                question: "Dalam dokumen kontrak kerja setebal 50 halaman, Anda ingin mencari kata 'Lembur' dan menggantinya menjadi 'Overtime' secara otomatis. Shortcut keyboard yang ditekan adalah?",
+                options: ["Ctrl + C", "Ctrl + P", "Ctrl + Z", "Ctrl + H"],
+                correct: 3,
+                feedback: "Ctrl + H adalah shortcut untuk membuka kotak dialog 'Find and Replace' di Microsoft Word."
+            },
+            {
+                category: "MS. Word", icon: "📄",
+                question: "Untuk membuat daftar isi secara otomatis pada laporan evaluasi kinerja hotel bulanan, teks judul bab harus terlebih dahulu diatur menggunakan fitur?",
+                options: ["Drop Cap", "Heading Styles", "Page Borders", "SmartArt"],
+                correct: 1,
+                feedback: "Daftar isi otomatis (Table of Contents) di Word bekerja dengan membaca teks yang telah di-format menggunakan Heading Styles (Heading 1, Heading 2, dll)."
+            },
+
+            // --- EXCEL (6 Questions) ---
+            {
+                category: "MS. Excel", icon: "📊",
+                question: "Resepsionis ingin mencari otomatis nama tamu dan nomor kamar di Sheet1 berdasarkan 'Kode Booking' yang dimasukkan. Rumus Excel yang paling tepat adalah?",
+                options: ["=SUM()", "=VLOOKUP()", "=IF()", "=AVERAGE()"],
+                correct: 1,
+                feedback: "VLOOKUP digunakan untuk mencari sebuah nilai di kolom paling kiri dari sebuah tabel, lalu mengembalikan nilai di baris yang sama dari kolom yang ditentukan."
+            },
+            {
+                category: "MS. Excel", icon: "📊",
+                question: "Anda memiliki tabel daftar kamar. Anda ingin sel otomatis berwarna merah jika statusnya 'Out of Order'. Fitur Excel apa yang digunakan?",
+                options: ["Format as Table", "Cell Styles", "Conditional Formatting", "Data Validation"],
+                correct: 2,
+                feedback: "Conditional Formatting mengubah tampilan sel (warna, font) secara otomatis berdasarkan aturan atau kriteria tertentu yang terpenuhi."
+            },
+            {
+                category: "MS. Excel", icon: "📊",
+                question: "Manajer Keuangan memberikan data transaksi harian berisi 5000 baris. Beliau meminta ringkasan total pendapatan berdasarkan jenis kamar. Fitur tercepat untuk ini adalah?",
+                options: ["PivotTable", "AutoSum", "Sort & Filter", "Text to Columns"],
+                correct: 0,
+                feedback: "PivotTable adalah alat luar biasa kuat di Excel untuk meringkas, menganalisis, mengeksplorasi, dan menyajikan data besar dengan cepat."
+            },
+            {
+                category: "MS. Excel", icon: "📊",
+                question: "Jika di sel A2 berisi Harga Kamar (500000) dan B2 berisi Lama Menginap (3 malam). Rumus di C2 untuk menghitung Total Biaya sebelum pajak adalah?",
+                options: ["=A2+B2", "=A2*B2", "=SUM(A2:B2)", "=A2%B2"],
+                correct: 1,
+                feedback: "Operator bintang (*) digunakan untuk perkalian di Excel. =A2*B2 akan mengalikan harga dengan lama menginap."
+            },
+            {
+                category: "MS. Excel", icon: "📊",
+                question: "Saat menggulir ke bawah data inventaris F&B yang panjang, baris judul kolom menghilang. Fitur apa agar baris pertama (judul) tetap diam/terlihat di atas layar?",
+                options: ["Split Window", "Freeze Panes", "Hide Rows", "Wrap Text"],
+                correct: 1,
+                feedback: "Freeze Panes digunakan untuk membekukan sebagian area sheet (seperti baris judul) agar tetap terlihat saat sisa sheet digulir."
+            },
+            {
+                category: "MS. Excel", icon: "📊",
+                question: "Untuk menghitung Rata-rata tingkat hunian (Occupancy Rate) harian selama satu bulan penuh, fungsi dasar yang digunakan adalah?",
+                options: ["=MAX()", "=MIN()", "=AVERAGE()", "=COUNT()"],
+                correct: 2,
+                feedback: "AVERAGE digunakan untuk mencari nilai rata-rata dari sekelompok angka dalam range sel tertentu."
+            },
+
+            // --- POWERPOINT (5 Questions) ---
+            {
+                category: "MS. PowerPoint", icon: "📽️",
+                question: "Tim Marketing akan presentasi pitch deck ke investor. Agar logo hotel selalu berada di pojok kanan atas di SETIAP slide tanpa harus copy-paste manual, gunakan fitur?",
+                options: ["Slide Show", "Slide Master", "Design Ideas", "Animations"],
+                correct: 1,
+                feedback: "Slide Master mengontrol keseluruhan tampilan presentasi. Elemen yang diletakkan di Slide Master akan otomatis muncul di semua slide."
+            },
+            {
+                category: "MS. PowerPoint", icon: "📽️",
+                question: "Efek pergerakan visual saat pergantian DARI satu slide KE slide berikutnya (misal efek 'Wipe' atau 'Fade') disebut?",
+                options: ["Animations", "Transitions", "Hyperlink", "Action Buttons"],
+                correct: 1,
+                feedback: "Transitions adalah animasi efek yang terjadi saat berpindah antar slide. Sedangkan Animations adalah efek untuk objek di dalam slide."
+            },
+            {
+                category: "MS. PowerPoint", icon: "📽️",
+                question: "Saat presentasi laporan tahunan di proyektor, Anda ingin melihat catatan pembicara di layar laptop Anda secara diam-diam. Fitur ini disebut?",
+                options: ["Presenter View", "Reading View", "Slide Sorter", "Notes Page"],
+                correct: 0,
+                feedback: "Presenter View memungkinkan pembicara melihat slide saat ini, slide berikutnya, dan catatan, sementara audiens hanya melihat slide presentasi."
+            },
+            {
+                category: "MS. PowerPoint", icon: "📽️",
+                question: "Anda sedang mengedit slide ke-15, lalu ingin langsung mencoba menayangkan presentasi dimulai HANYA dari slide ke-15 tersebut. Shortcut yang ditekan adalah?",
+                options: ["F5", "Shift + F5", "Esc", "Ctrl + P"],
+                correct: 1,
+                feedback: "Shift + F5 memulai tayangan slide (Slide Show) dari slide yang sedang aktif, sedangkan F5 selalu memulai dari slide pertama."
+            },
+            {
+                category: "MS. PowerPoint", icon: "📽️",
+                question: "Untuk menyisipkan video tour fasilitas hotel yang ada di harddisk laptop Anda ke dalam slide presentasi, menu yang dipilih adalah?",
+                options: ["Insert > Video > This Device", "Design > Background", "Home > New Slide", "Transitions > Media"],
+                correct: 0,
+                feedback: "Anda dapat menyematkan video langsung ke PPT melalui menu Insert > Video, memilih dari perangkat lokal atau online."
+            },
+
+            // --- CLOUD STORAGE (4 Questions) ---
+            {
+                category: "Cloud Storage", icon: "☁️",
+                question: "Tim Event Organizer hotel perlu mengerjakan proposal kegiatan bersamaan dari rumah masing-masing. Solusi aplikasi Cloud terbaik adalah?",
+                options: ["Microsoft Word Offline", "Google Docs", "Adobe Reader", "Notepad"],
+                correct: 1,
+                feedback: "Google Docs (atau Word Online) berbasis cloud memungkinkan banyak orang mengedit satu dokumen secara bersamaan (real-time collaboration)."
+            },
+            {
+                category: "Cloud Storage", icon: "☁️",
+                question: "Anda harus mengirim file video promosi hotel sebesar 2GB ke vendor luar. Mengapa menggunakan 'Share Link' via Google Drive/OneDrive lebih baik daripada melampirkan (attachment) di Email?",
+                options: ["File otomatis dikompres menjadi ukuran kecil", "Tidak membebani kuota penyimpanan email pengirim & penerima", "Email tidak membutuhkan koneksi internet", "Video akan otomatis diedit oleh Cloud"],
+                correct: 1,
+                feedback: "Layanan email memiliki batas lampiran (biasanya 25MB). Membagikan link Cloud mengatasi batas ini dan menghemat kapasitas kotak masuk."
+            },
+            {
+                category: "Cloud Storage", icon: "☁️",
+                question: "Seorang staf tidak sengaja menghapus paragraf penting di dokumen Excel Online yang dibagikan dan file sudah tersimpan otomatis (auto-save). Cara mengembalikannya?",
+                options: ["Mustahil, file rusak", "Gunakan fitur Version History (Riwayat Versi)", "Beli harddisk baru", "Restart komputer"],
+                correct: 1,
+                feedback: "Cloud storage merekam 'Version History', memungkinkan Anda melihat dan memulihkan dokumen ke kondisi pada tanggal atau waktu sebelumnya."
+            },
+            {
+                category: "Cloud Storage", icon: "☁️",
+                question: "Berikut ini adalah contoh layanan Cloud Storage populer yang sering digunakan di industri, KECUALI?",
+                options: ["Microsoft OneDrive", "Dropbox", "Google Drive", "Adobe Photoshop"],
+                correct: 3,
+                feedback: "Adobe Photoshop adalah software pengedit foto (meski memiliki fitur cloud), bukan layanan utama penyimpanan cloud (Cloud Storage) seperti ketiga opsi lainnya."
+            },
+
+            // --- ICT IN HOSPITALITY (5 Questions) ---
+            {
+                category: "Hotel TIK", icon: "🏨",
+                question: "Sistem perangkat lunak utama yang menjadi 'jantung' operasional hotel untuk mengatur reservasi tamu, proses check-in/out, dan status kamar disebut?",
+                options: ["POS (Point of Sale)", "PMS (Property Management System)", "CRM (Customer Relationship)", "CMS (Content Management)"],
+                correct: 1,
+                feedback: "PMS adalah sistem sentral di hotel (contoh: Opera, VHP) yang mengelola siklus tamu dari awal hingga akhir."
+            },
+            {
+                category: "Hotel TIK", icon: "🏨",
+                question: "Waiter di restoran hotel mencatat pesanan tamu menggunakan tablet, yang otomatis mencetak struk di kasir dan mengirim orderan ke layar dapur. Sistem ini dinamakan?",
+                options: ["POS (Point of Sale) System", "Keycard System", "PABX", "Inventory System"],
+                correct: 0,
+                feedback: "POS digunakan di outlet F&B atau Spa untuk memproses penjualan, mengelola pesanan, dan mencatat transaksi langsung."
+            },
+            {
+                category: "Hotel TIK", icon: "🏨",
+                question: "Teknologi kartu kunci kamar hotel modern yang memungkinkan tamu cukup mendekatkan kartu ke sensor pintu (tanpa digesek atau dimasukkan) umumnya menggunakan teknologi?",
+                options: ["Barcode", "Magnetic Stripe", "RFID (Radio Frequency Identification)", "Floppy Disk"],
+                correct: 2,
+                feedback: "RFID menggunakan gelombang radio untuk membaca data dari jarak dekat, standar umum untuk sistem kunci pintar masa kini."
+            },
+            {
+                category: "Hotel TIK", icon: "🏨",
+                question: "Hotel menjual kamar melalui Traveloka, Agoda, dan Booking.com. Agar ketersediaan kamar selalu sinkron otomatis di semua platform tersebut, hotel menggunakan software?",
+                options: ["Channel Manager", "Social Media Manager", "Antivirus", "Web Browser"],
+                correct: 0,
+                feedback: "Channel Manager menghubungkan PMS hotel dengan berbagai Online Travel Agents (OTA) untuk mengupdate harga dan inventaris kamar secara real-time."
+            },
+            {
+                category: "Hotel TIK", icon: "🏨",
+                question: "Untuk menyimpan data bahwa tamu 'Mr. Smith' alergi kacang dan lebih suka kamar dekat lift, departemen Guest Relation menggunakan perangkat lunak?",
+                options: ["Microsoft Paint", "CRM (Customer Relationship Management)", "AutoCAD", "Payroll System"],
+                correct: 1,
+                feedback: "CRM digunakan untuk mengelola interaksi, data historis, preferensi, dan keluhan pelanggan guna memberikan layanan yang personal."
+            },
+
+            // --- ARTIFICIAL INTELLIGENCE (5 Questions) ---
+            {
+                category: "Artificial Intelligence", icon: "🤖",
+                question: "Di website resmi hotel, ada kotak obrolan virtual yang merespons pertanyaan tamu tentang jam buka kolam renang secara instan pukul 3 pagi tanpa staf manusia. Ini adalah contoh?",
+                options: ["Email Marketing", "AI Chatbot", "Video Call", "Live Streaming"],
+                correct: 1,
+                feedback: "Chatbot berbasis AI (seperti NLP) dapat memahami dan menjawab pertanyaan umum pelanggan secara otomatis 24/7."
+            },
+            {
+                category: "Artificial Intelligence", icon: "🤖",
+                question: "Algoritma AI pada Revenue Management System hotel mengubah harga kamar secara otomatis setiap jam berdasarkan tingkat permintaan, cuaca, dan event lokal. Strategi ini disebut?",
+                options: ["Fixed Pricing", "Dynamic Pricing (Harga Dinamis)", "Discount Pricing", "Manual Pricing"],
+                correct: 1,
+                feedback: "Dynamic Pricing menggunakan AI untuk memprediksi permintaan dan memaksimalkan pendapatan dengan menaikkan/menurunkan harga secara real-time."
+            },
+            {
+                category: "Artificial Intelligence", icon: "🤖",
+                question: "Beberapa hotel masa depan menggunakan kamera di lobi yang didukung AI untuk mencocokkan wajah tamu dengan foto paspor saat check-in kilat. Teknologi AI ini adalah?",
+                options: ["Voice Recognition", "Text-to-Speech", "Facial Recognition (Pengenalan Wajah)", "Data Mining"],
+                correct: 2,
+                feedback: "Facial Recognition menganalisis pola fitur wajah untuk verifikasi identitas secara nirsentuh (contactless)."
+            },
+            {
+                category: "Artificial Intelligence", icon: "🤖",
+                question: "Bagaimana staf Front Office dapat memanfaatkan Generative AI (seperti ChatGPT atau Gemini) secara produktif dalam pekerjaan sehari-hari?",
+                options: ["Membiarkan AI membersihkan kamar", "Meminta AI membuat draf balasan profesional untuk email komplain pelanggan", "Menyuruh AI memperbaiki AC rusak", "Menggunakan AI untuk memasak di dapur"],
+                correct: 1,
+                feedback: "Generative AI sangat unggul dalam membantu menyusun teks, draf email, atau ide copywriting dengan nada yang profesional dalam hitungan detik."
+            },
+            {
+                category: "Artificial Intelligence", icon: "🤖",
+                question: "Saat memasukkan data keuangan hotel ke platform AI publik (seperti ChatGPT gratis) untuk dianalisis, risiko terbesar yang melanggar etika perhotelan adalah?",
+                options: ["AI akan memakan banyak listrik", "Komputer menjadi lambat", "Kebocoran data rahasia perusahaan / Data Privacy", "Format font akan berubah"],
+                correct: 2,
+                feedback: "Memasukkan data sensitif (nama tamu, laporan keuangan rahasia) ke AI publik berisiko melanggar kebijakan privasi data, karena data tersebut bisa digunakan untuk melatih model AI publik."
+            }
+        ];
+
+        const els = {
+            app: document.getElementById('app'),
+            welcomeScreen: document.getElementById('welcome-screen'),
+            quizScreen: document.getElementById('quiz-screen'),
+            resultScreen: document.getElementById('result-screen'),
+            playerNameInput: document.getElementById('playerName'),
+            startBtn: document.getElementById('startBtn'),
+            
+            questionCounter: document.getElementById('questionCounter'),
+            categoryBadge: document.getElementById('categoryBadge'),
+            progressBar: document.getElementById('progressBar'),
+            scoreDisplay: document.getElementById('scoreDisplay'),
+            questionText: document.getElementById('questionText'),
+            optionsContainer: document.getElementById('optionsContainer'),
+            
+            feedbackModal: document.getElementById('feedbackModal'),
+            feedbackContent: document.getElementById('feedbackContent'),
+            feedbackIcon: document.getElementById('feedbackIcon'),
+            feedbackTitle: document.getElementById('feedbackTitle'),
+            feedbackExplanation: document.getElementById('feedbackExplanation'),
+            nextQuestionBtn: document.getElementById('nextQuestionBtn'),
+            
+            resultGreeting: document.getElementById('resultGreeting'),
+            finalScoreDisplay: document.getElementById('finalScoreDisplay'),
+            finalProgressBar: document.getElementById('finalProgressBar'),
+            jobPredictionTitle: document.getElementById('jobPredictionTitle'),
+            jobPredictionDesc: document.getElementById('jobPredictionDesc'),
+            predictionIcon: document.getElementById('predictionIcon'),
+            
+            certName: document.getElementById('certName'),
+            certScore: document.getElementById('certScore'),
+            certDate: document.getElementById('certDate')
+        };
+
+        
+        function initGame() {
+            // Shuffle questions to make it slightly random but keep all 30
+            state.questions = [...allQuestions].sort(() => Math.random() - 0.5);
+            
+            els.startBtn.addEventListener('click', startGame);
+            els.nextQuestionBtn.addEventListener('click', handleNextQuestion);
+            
+            // Allow pressing Enter on name input
+            els.playerNameInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    startGame();
+                }
+            });
+        }
+
+        function startGame() {
+            const name = els.playerNameInput.value.trim();
+            if (!name) {
+                els.playerNameInput.classList.add('border-red-500', 'ring-red-500');
+                els.playerNameInput.placeholder = "Nama tidak boleh kosong!";
+                setTimeout(() => els.playerNameInput.classList.remove('border-red-500', 'ring-red-500'), 1500);
+                return;
+            }
+            
+            state.playerName = name;
+            state.currentQuestion = 0;
+            state.score = 0;
+            
+            // UI Transition
+            els.welcomeScreen.classList.add('hidden');
+            els.quizScreen.classList.remove('hidden');
+            
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = state.questions[state.currentQuestion];
+            const qNum = state.currentQuestion + 1;
+            const totalQ = state.questions.length;
+            
+            // Update Header Stats
+            els.questionCounter.textContent = `${qNum}/${totalQ}`;
+            els.scoreDisplay.textContent = state.score;
+            els.categoryBadge.innerHTML = `${q.icon} ${q.category}`;
+            
+            // Progress Bar
+            const progressPct = ((qNum - 1) / totalQ) * 100;
+            els.progressBar.style.width = `${progressPct}%`;
+            
+            // Question Text
+            els.questionText.textContent = q.question;
+            
+            // Clear old options
+            els.optionsContainer.innerHTML = '';
+            
+            // Render Options
+            q.options.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-xl border border-slate-600 bg-slate-800/50 hover:bg-slate-700 hover:border-teal-400 transition-all text-gray-200 text-lg flex items-center gap-3 btn-hover-effect';
+                
+                const letterBox = document.createElement('span');
+                letterBox.className = 'w-8 h-8 rounded bg-slate-700 flex items-center justify-center font-bold text-teal-300 shrink-0';
+                letterBox.textContent = String.fromCharCode(65 + index); // A, B, C, D
+                
+                const spanText = document.createElement('span');
+                spanText.textContent = optText;
+                
+                btn.appendChild(letterBox);
+                btn.appendChild(spanText);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                els.optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            // Disable all buttons immediately
+            const allBtns = els.optionsContainer.querySelectorAll('button');
+            allBtns.forEach(b => b.disabled = true);
+            
+            const q = state.questions[state.currentQuestion];
+            const isCorrect = selectedIndex === q.correct;
+            
+            if (isCorrect) {
+                state.score++;
+                els.scoreDisplay.textContent = state.score;
+                btnElement.classList.remove('bg-slate-800/50', 'border-slate-600');
+                btnElement.classList.add('bg-green-600/20', 'border-green-500', 'text-white');
+                btnElement.querySelector('span').classList.replace('bg-slate-700', 'bg-green-500');
+                btnElement.querySelector('span').classList.replace('text-teal-300', 'text-white');
+                showFeedback(true, q.feedback);
+            } else {
+                btnElement.classList.remove('bg-slate-800/50', 'border-slate-600');
+                btnElement.classList.add('bg-red-600/20', 'border-red-500');
+                btnElement.querySelector('span').classList.replace('bg-slate-700', 'bg-red-500');
+                btnElement.querySelector('span').classList.replace('text-teal-300', 'text-white');
+                
+                // Highlight correct answer
+                const correctBtn = allBtns[q.correct];
+                correctBtn.classList.remove('bg-slate-800/50', 'border-slate-600');
+                correctBtn.classList.add('bg-green-600/20', 'border-green-500');
+                
+                showFeedback(false, q.feedback);
+            }
+        }
+
+        function showFeedback(isCorrect, explanation) {
+            // Small delay to let user see button color change
+            setTimeout(() => {
+                els.feedbackModal.classList.remove('hidden');
+                els.feedbackModal.classList.add('flex');
+                
+                // Animate content pop
+                els.feedbackContent.classList.remove('scale-95');
+                els.feedbackContent.classList.add('scale-100');
+
+                if (isCorrect) {
+                    els.feedbackIcon.textContent = "🎯";
+                    els.feedbackTitle.textContent = "Tepat Sekali!";
+                    els.feedbackTitle.className = "text-3xl font-bold mb-2 text-green-400";
+                    els.feedbackContent.classList.replace('border-slate-600', 'border-green-500');
+                    els.nextQuestionBtn.className = "w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-6 rounded-xl btn-hover-effect text-lg shadow-lg shadow-green-600/30";
+                } else {
+                    els.feedbackIcon.textContent = "💡";
+                    els.feedbackTitle.textContent = "Belum Tepat";
+                    els.feedbackTitle.className = "text-3xl font-bold mb-2 text-red-400";
+                    els.feedbackContent.classList.replace('border-slate-600', 'border-red-500');
+                    els.nextQuestionBtn.className = "w-full bg-slate-600 hover:bg-slate-500 text-white font-bold py-4 px-6 rounded-xl btn-hover-effect text-lg shadow-lg";
+                }
+                
+                els.feedbackExplanation.textContent = explanation;
+            }, 600);
+        }
+
+        function handleNextQuestion() {
+            els.feedbackModal.classList.add('hidden');
+            els.feedbackModal.classList.remove('flex');
+            
+            // Reset modal styles
+            els.feedbackContent.classList.remove('scale-100', 'border-green-500', 'border-red-500');
+            els.feedbackContent.classList.add('scale-95', 'border-slate-600');
+            
+            state.currentQuestion++;
+            
+            if (state.currentQuestion < state.questions.length) {
+                // Fade effect between questions
+                els.quizScreen.classList.remove('animate-fade-in');
+                void els.quizScreen.offsetWidth; // trigger reflow
+                els.quizScreen.classList.add('animate-fade-in');
+                
+                renderQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            els.quizScreen.classList.add('hidden');
+            els.resultScreen.classList.remove('hidden');
+            
+            // Populate Results
+            els.resultGreeting.textContent = `Shift selesai, ${state.playerName}! Ini hasil kerjamu.`;
+            els.finalScoreDisplay.textContent = state.score;
+            
+            const scorePct = (state.score / state.questions.length) * 100;
+            
+            // Animate progress bar
+            setTimeout(() => {
+                els.finalProgressBar.style.width = `${scorePct}%`;
+            }, 300);
+
+            // Determine Job Prediction based on score tier
+            let title = "";
+            let desc = "";
+            let icon = "";
+
+            if (state.score <= 10) {
+                icon = "🖨️";
+                title = "Magang Fotokopi Kertas";
+                desc = "Kamu masih perlu banyak latihan mengetik dan menggunakan mouse. Jangan menyerah, pelajari dasar-dasarnya lagi!";
+            } else if (state.score <= 20) {
+                icon = "📠";
+                title = "Resepsionis Kalkulator Manual";
+                desc = "Kemampuan komputermu standar, tapi di era digital ini hotel butuh kecepatan. Tingkatkan skill rumus Excel & sistem Cloud!";
+            } else if (state.score <= 25) {
+                icon = "💻";
+                title = "Super-User Back Office";
+                desc = "Luar biasa! Kamu sangat menguasai MS Office dan sistem dasar perhotelan. Pekerjaan admin akan selesai dalam sekejap di tanganmu.";
+            } else if (state.score <= 29) {
+                icon = "☁️";
+                title = "Sultan Cloud & Master Excel";
+                desc = "Nyaris Sempurna! Pemahamanmu tentang teknologi terpadu dan sistem hotel sangat dalam. Kamu siap menjadi IT Manager atau Revenue Manager.";
+            } else {
+                icon = "🤖👑";
+                title = "General Manager Hotel AI";
+                desc = "SEMPURNA! Kamu adalah dewa teknologi perhotelan. Memahami dari hal basic hingga Artificial Intelligence. Masa depan perhotelan ada di tanganmu!";
+            }
+
+            els.predictionIcon.textContent = icon;
+            els.jobPredictionTitle.textContent = title;
+            els.jobPredictionDesc.textContent = desc;
+
+            // Generate Certificate
+            els.certName.textContent = state.playerName;
+            els.certScore.textContent = state.score;
+            
+            // Set current date in Indonesian format
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            els.certDate.textContent = today.toLocaleDateString('id-ID', options);
+        }
+
+        // Initialize on load
+        window.onload = initGame;
+    </script>
+</body>
+</html>
